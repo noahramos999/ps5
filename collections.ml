@@ -120,7 +120,7 @@ module MakeQueueList (Element : sig type t end)
  *)
 
 module MakeQueueStack (Element : sig type t end)
-       : (COLLECTION with type elt = Element.t (*and type collection = Element.t list * Element.t list)*) =
+       : (COLLECTION with type elt = Element.t (*and type collection = Element.t list * Element.t list*)) =
   struct
 
     exception Empty
