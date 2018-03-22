@@ -23,15 +23,17 @@ open Mazes
 open Gamedescription
 open Gamesolve
 
-module IntQueueStack = MakeQueueStack (struct type t = int end)
+module QStack = MakeQueueStack (struct type t = int end)
 
-let run_tests_queue_stack () =
-  assert (empty = ([], []));
-  let c = IntQueueStack.empty in
-  assert (IntQueueStack.is_empty c = true) ;
-  IntQueueStack.add 1 c ;
-  assert (c = ([1],[])) ;
-  IntQueueStack.add 2 c
+let test_queue_stack () =
+  let a = QStack.empty in
+  assert (QStack.is_empty a = true);
+  assert (QStack.length a = 0);
+  let a1 = QStack.add 1 a in
+  assert (QStack.take a1 = (1, QStack.empty));
+  let a2 = QStack.add 2 a1 in
+  assert (QStack.length a2 = 2);
+  assert (QStack.take a2 = (1, QStack.add 2 a))
 
 
 (*......................................................................

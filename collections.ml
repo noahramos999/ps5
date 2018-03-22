@@ -150,6 +150,6 @@ module MakeQueueStack (Element : sig type t end)
 
   end
 
-module IntQueueStack (*: (COLLECTION with type elt = int and type collection = int list * int list)*)= MakeQueueStack (struct type t = int end) ;;
+module QStack (*: (COLLECTION with type elt = int and type collection = int list * int list)*)= MakeQueueStack (struct type t = int end) ;;
 
 let minutes_spent_collections () : int = 100 ;;
