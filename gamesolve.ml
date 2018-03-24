@@ -1,8 +1,8 @@
-(*                       
+(*
                                 CS 51
                              Spring 2018
                         Problem Set 5: Search
- 
+
                              Game Solving
 
 This file contains the signature for a GAMESOLVER module as well as a
@@ -29,8 +29,8 @@ open Gamedescription
 
 (* GAMESOLVER -- a module type that provides for solving games and
    graphically drawing the results *)
-       
-module type GAMESOLVER = 
+
+module type GAMESOLVER =
   sig
     exception CantReachGoal
     type state
@@ -41,23 +41,34 @@ module type GAMESOLVER =
   end
 
 (* MakeGameSolver -- a higher-order functor that generates game solvers, with type
- 
+
   (functor(sig type t end -> COLLECTION)) -> GAMEDESCRIPTION -> GAMESOLVER
 
    A functor that given a functor from a GAMEDESCRIPTION to a
    game description-specific Collection, as well as a GAMEDESCRIPTION,
-   returns a full GAMESOLVER module. 
+   returns a full GAMESOLVER module.
  *)
 
-module MakeGameSolver (DSFunc : functor(Element : sig type t end) -> 
+module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
                                        (COLLECTION with type elt = Element.t))
-                      (G : GAMEDESCRIPTION)                  
+                      (G : GAMEDESCRIPTION)
        : (GAMESOLVER with type state = G.state
                       and type move = G.move) =
   struct
-    failwith "MakeGameSolver not implemented"
+    exception CantReachGoal
+
+    type state = G.state
+
+    type move = G.move
+
+    val solve () : move list * state list =
+
+    val draw (sl : state list) (ml : move list) : () =
+
+    val print_state (s : state) : () =
+
   end ;;
-     
+
 (* DFSSolver and BFSSolver: Higher-order Functors that take in a
    GAMEDESCRIPTION, and will return Games that are solved with DFS and
    BFS, respectively. The fast bfs solver uses a better implementation
