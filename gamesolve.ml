@@ -61,11 +61,22 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
 
     type move = G.move
 
-    val solve () : move list * state list =
+    let get_moves (x : (state * move) list) : move list =
+      let helper (a : state * move) : move =
+        match a with
+        | (a1, a2) -> a2 in
+      map helper x
 
-    val draw (sl : state list) (ml : move list) : () =
+    let solve () : move COLLECTION * state COLLECTION =
+      let optionlistmaker (s : state) : move COLLECTION =
+        get_moves (Gamedescription.neighbors s) in
+      let rec iterate (c : COLLECTION) :
 
-    val print_state (s : state) : () =
+    let draw (sl : state list) (ml : move list) : () =
+      Gamedescription.draw sl ml
+
+    let print_state (s : state) : () =
+      Gamedescription.print_state s
 
   end ;;
 

@@ -119,15 +119,15 @@ module MakeQueueList (Element : sig type t end)
   s2, and taken from s1. When s1 is empty, s2 is reversed onto s1.
  *)
 
-module StackList = MakeStackList (struct type t end)
+module StackList = MakeStackList (struct type t = int end)
 
 module MakeQueueStack (Element : sig type t end)
-       : (COLLECTION with type elt = Element.t (*and type collection = Element.t list * Element.t list*)) =
+       : (COLLECTION with type elt = StackList.elt (*and type collection = Element.t list * Element.t list*)) =
   struct
 
     exception Empty
 
-    type elt = Element.t
+    type elt = StackList.elt
     type collection = StackList.collection * StackList.collection
 
     let empty : collection = (StackList.empty,StackList.empty)
@@ -139,23 +139,23 @@ module MakeQueueStack (Element : sig type t end)
     let is_empty (d : collection) : bool =
       d = empty
 
-    let take_elt (x : StackList.elt * StackList.collection) : StackList.elt =
+    let take_elt (x : elt * StackList.collection) : elt =
       match x with
       | (a, b) -> a
-    let take_collect (y : StackList.elt * StackList.collection) : StackList.collection =
+    let take_collect (y : elt * StackList.collection) : StackList.collection =
       match y with
       | (a, b) -> b
     let rec reverse (c : collection) : collection =
       match c with
       | (x, y) -> if y = StackList.empty then c else reverse (StackList.add (take_elt (StackList.take y)) x, take_collect (StackList.take y))
 
-    let add (e : StackList.elt) (d : collection) : collection =
+    let add (e : elt) (d : collection) : collection =
       match d with
       | (x, y) -> if x = StackList.empty then reverse (x, (StackList.add e y)) else (x, (StackList.add e y))
 
     let take (d : collection) : elt * collection =
       match d with
-      | (x, y) -> if take_collect (StackList.take x) = StackList.empty then (x, reverse (take_collect (StackList.take x), y))
+      | (x, y) -> if take_collect (StackList.take x) = StackList.empty then (take_elt (StackList.take x), reverse (take_collect (StackList.take x), y))
                   else (take_elt (StackList.take x), (take_collect (StackList.take x), y))
       | _ -> raise Empty
 
@@ -196,4 +196,4 @@ module MakeQueueStack (Element : sig type t end)
   end*)
 
 
-let minutes_spent_collections () : int = 100 ;;
+let minutes_spent_collections () : int = 200 ;;
