@@ -63,32 +63,49 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
 
     module States = DSFunc (struct type t = state * (move list) end)
 
-    let get_moves (x : (state * move) list) : move list =
-      let helper (a : state * move) : move =
-        match a with
-        | (a1, a2) -> a2 in
-      map helper x
+    let solve () : move list * state list =
 
-    let rec combine_collections (a : 'a States.collection) (b : 'a States.collection) : 'a States.collection =
-      if b = States.empty then a else States.add States.add
-    let take_elt (x : States.elt * States.collection) : States.elt =
-      match x with
-      | (a, b) -> a
-    let take_collect (y : States.elt * States.collection) : States.collection =
-      match y with
-      | (a, b) -> b
+      let getfirst (ab : 'a * 'b) : 'a =
+        match ab with
+        | (x, _) -> x in
+      let getsecond (ab : 'a * 'b) : 'b =
+        match ab with
+        | (_, y) -> y in
 
-    let solve () : move States.collection * state States.collection =
-      let optionlistmaker (s : state) : move States.collection =
-        get_moves (G.neighbors s) in
-      let rec iterate (t : state) : move States.collection =
-        match States.take optionlistmaker t with
-        | (x, y) -> y
+      let convert (sm : (state * move) list) : States.collection =
 
-    let draw (sl : state list) (ml : move list) : () =
+        let rec makemovelist (sml : (state * move) list) : move list =
+        match sml with
+        | [] -> []
+        | hd::tl -> (getsecond hd)::(makemovelist tl) in
+
+        let rec makestatemovelist (sm : (state * move) list) (m : move list) (i : int) : (state * (move list)) list =
+          let rec getmoves (x : move list) (y : int) : move list =
+            if y = 0 then [] else
+            match x with
+            | [] -> []
+            | hd::tl -> hd::(getmoves tl (y - 1)) in
+          match sm with
+          | [] -> []
+          | hd::_ -> (getfirst hd, getmoves m i)::(makestatemovelist sm m (i + 1)) in
+
+        makestatemovelist sm (makemovelist sm) 0 in
+
+      let rec combine_collections (a : States.collection) (b : States.collection) : States.collection =
+        if b = States.empty then a else combine_collections (States.add (getfirst (States.take b)) a) (getsecond (States.take b)) in
+
+      let rec iterate (t : States.collection) (s : state list) : move list * state list =
+        if G.is_goal (getfirst (States.take t)) then (getsecond (States.take t), s)
+      else
+        iterate (combine_collections t (convert (G.neighbors (getfirst (States.take t))))) (s::(getfirst (States.take t)))
+      in
+
+      iterate (convert (G.neighbors G.initial_state)) [G.initial_state]
+
+    let draw (sl : state list) (ml : move list) =
       G.draw sl ml
 
-    let print_state (s : state) : () =
+    let print_state (s : state) =
       G.print_state s
 
   end ;;
