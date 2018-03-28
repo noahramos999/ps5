@@ -104,7 +104,7 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
         let x = (fst (fst (States.take t))) in
         if G.is_goal x then (snd (fst (States.take t)), s)
         else if States.is_empty t then raise CantReachGoal
-        else iterate (incrementmoves (combine_collections (snd (States.take t)) (convert (G.neighbors x)))) (s @ [x])
+        else iterate (*(incrementmoves *)(combine_collections (snd (States.take t)) (convert (G.neighbors x))) (s @ [x])
       in
 
       (*BELOW HERE IS ME TRYING TO FIGURE OUT ANOTHER IMPLEMENTATION THAT ONLY TAKES
