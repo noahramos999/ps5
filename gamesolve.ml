@@ -86,7 +86,7 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
 
       let rec combine_collections (a : States.collection) (b : States.collection) : States.collection =
         if States.is_empty b then a else combine_collections (States.add (fst (States.take b)) a) (snd (States.take b)) in
-
+(*
       let incrementmoves (sc : States.collection) : States.collection =
         let getmove () : move =
           match snd (fst (States.take sc)) with
@@ -97,7 +97,7 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
           match sm with
           | (x, y) -> (x, y @ [m]) in
         List.map helper sc in
-
+*)
       (*CURRENT PROBLEM: TRYING TO FIND HOW THIS ITERATE FUNCTION IS RECURSING INFINITELY
       THIS FUNCTION ALSO DOES NOT RETURN A PROPER MOVE LIST*)
       let rec iterate (t : States.collection) (s : state list) : move list * state list =
