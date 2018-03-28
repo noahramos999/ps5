@@ -87,10 +87,28 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
       let rec combine_collections (a : States.collection) (b : States.collection) : States.collection =
         if States.is_empty b then a else combine_collections (States.add (fst (States.take b)) a) (snd (States.take b)) in
 
+      (*CURRENT PROBLEM: TRYING TO FIND HOW THIS ITERATE FUNCTION IS RECURSING INFINITELY
+      THIS FUNCTION ALSO DOES NOT RETURN A PROPER MOVE LIST*)
       let rec iterate (t : States.collection) (s : state list) : move list * state list =
-        if G.is_goal (fst (fst (States.take t))) then (snd (fst (States.take t)), s)
-      else iterate (combine_collections t (convert (G.neighbors (fst (fst (States.take t)))))) (s@[fst (fst (States.take t))])
+        let x = (fst (fst (States.take t))) in
+        if G.is_goal x then (snd (fst (States.take t)), s)
+        else if States.is_empty t then raise CantReachGoal
+        else iterate (combine_collections (snd (States.take t)) (convert (G.neighbors x))) (s @ [x])
       in
+
+      (*BELOW HERE IS ME TRYING TO FIGURE OUT ANOTHER IMPLEMENTATION THAT ONLY TAKES
+      STATES.COLLECTION AS INPUT. INCREMEMNT MOVES IF USED RIGHT SHOULD FIX THE MOVE LIST ISSUE*)
+      let incrementmoves (sc : States.collection) (m : move) : States.collection =
+        let helper (sm : state * (move list)) : state * (move list) =
+          match sm with
+          | (x, y) -> (x, y::[m]) in
+        map helper sc in
+
+      let rec buildstates (t : States.collection) : state list =
+        let x = (fst (fst (States.take t))) in
+        if G.is_goal x then x
+        else if States.is_empty t then raise CantReachGoal
+        else [x] @ buildstates (incrementmoves (combine_collections (snd (States.take t)) (convert (G.neighbors x))) ) in
 
       iterate (convert (G.neighbors G.initial_state)) [G.initial_state]
 

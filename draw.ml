@@ -4,8 +4,8 @@
                         Problem Set 5: Search
 
                                Drawing
-                                
-  Basic functionality for drawing using OCaml's graphics module.  
+
+  Basic functionality for drawing using OCaml's graphics module.
 
  *)
 
@@ -18,7 +18,7 @@ let cLINEWIDTH = 3 ;;
 let cTILEWIDTH = 100 ;;
 let cFRAMESIZE = 500 ;;
 let cFRAMEDELAY = 0.1 ;;
-  
+
 (* Colors used for drawing. *)
 let cWALLCOLOR = 0x555555 ;;
 let cLOCCOLOR = 0xAD42F4 ;;
@@ -27,11 +27,11 @@ let cGOALCOLOR = 0xFFB405 ;;
 let cUNSEENCOLOR = 0x000000 ;;
 
 (* Drawing simple shapes*)
-let draw_square (c : G.color) (y : int) (x : int) (w : int) (h : int) : unit = 
+let draw_square (c : G.color) (y : int) (x : int) (w : int) (h : int) : unit =
   G.set_color c;
   G.fill_rect (x * w) (cFRAMESIZE - h - y * h) w h ;;
-  
-let draw_circle (c : G.color) (y : int) (x : int) (w : int) (h : int) : unit = 
+
+let draw_circle (c : G.color) (y : int) (x : int) (w : int) (h : int) : unit =
   G.set_color c;
   G.fill_ellipse (w / 2 + x * w)
                  (cFRAMESIZE - h / 2 - y * h)

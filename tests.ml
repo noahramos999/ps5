@@ -2,9 +2,7 @@
                                 CS 51
                              Spring 2018
                         Problem Set 5: Search
-
                      Testing Tile and Maze Puzzles
-
 In this file, we provide some tests of the game solver by generating
 random tile and maze puzzles and running the various solving methods
 (depth-first, breadth-first, etc.) on the examples. This code requires
@@ -15,8 +13,6 @@ some puzzles being solved and get some timings. This will be useful in
 designing your own experiments, as required in Problem 3 of the problem
 set.  *)
 
-print_string("asd")
-
 open CS51
 
 open Collections
@@ -25,23 +21,6 @@ open Mazes
 open Gamedescription
 open Gamesolve
 
-
-
-
-(*
-module QStack = MakeQueueStack (struct type t = int end)
-
-let test_queue_stack () =
-  let a = QStack.empty in
-  assert (QStack.is_empty a = true);
-  assert (QStack.length a = 0);
-  let a1 = QStack.add 1 a in
-  assert (QStack.take a1 = (1, QStack.empty));
-  let a2 = QStack.add 2 a1 in
-  assert (QStack.length a2 = 2);
-  assert (QStack.take a2 = (1, QStack.add 2 a))
-
-*)
 (*......................................................................
                        SAMPLE TILE GAME TESTING
 *)
