@@ -65,29 +65,25 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
 
     let solve () : move list * state list =
 
-      let getfirst (ab : 'a * 'b) : 'a =
-        match ab with
-        | (x, _) -> x in
-      let getsecond (ab : 'a * 'b) : 'b =
-        match ab with
-        | (_, y) -> y in
+      let getfirst  (a, _) = a in
+      let getsecond (_, b) = b in
 
       let convert (sm : (state * move) list) : States.collection =
-
+        (*takes in a state * move list and outputs a state * (move list) list *)
         let rec makemovelist (sml : (state * move) list) : move list =
         match sml with
         | [] -> []
         | hd::tl -> (getsecond hd)::(makemovelist tl) in
 
-        let rec makestatemovelist (sm : (state * move) list) (m : move list) (i : int) : (state * (move list)) list =
+        let rec makestatemovelist (sm : (state * move) list) (m : move list) (i : int) : States.collection =
           let rec getmoves (x : move list) (y : int) : move list =
             if y = 0 then [] else
             match x with
             | [] -> []
             | hd::tl -> hd::(getmoves tl (y - 1)) in
           match sm with
-          | [] -> []
-          | hd::_ -> (getfirst hd, getmoves m i)::(makestatemovelist sm m (i + 1)) in
+          | [] -> States.empty
+          | hd::tl -> States.add (getfirst hd, getmoves m i) (makestatemovelist tl m (i + 1)) in
 
         makestatemovelist sm (makemovelist sm) 0 in
 
@@ -95,9 +91,9 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
         if b = States.empty then a else combine_collections (States.add (getfirst (States.take b)) a) (getsecond (States.take b)) in
 
       let rec iterate (t : States.collection) (s : state list) : move list * state list =
-        if G.is_goal (getfirst (States.take t)) then (getsecond (States.take t), s)
+        if G.is_goal (getfirst (getfirst (States.take t))) then (getsecond (getfirst (States.take t)), s)
       else
-        iterate (combine_collections t (convert (G.neighbors (getfirst (States.take t))))) (s::(getfirst (States.take t)))
+        iterate (combine_collections t (convert (G.neighbors (getfirst (getfirst (States.take t)))))) (s@[getfirst (getfirst (States.take t))])
       in
 
       iterate (convert (G.neighbors G.initial_state)) [G.initial_state]
