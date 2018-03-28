@@ -15,6 +15,8 @@ some puzzles being solved and get some timings. This will be useful in
 designing your own experiments, as required in Problem 3 of the problem
 set.  *)
 
+print_string("asd")
+
 open CS51
 
 open Collections
@@ -23,6 +25,10 @@ open Mazes
 open Gamedescription
 open Gamesolve
 
+
+
+
+(*
 module QStack = MakeQueueStack (struct type t = int end)
 
 let test_queue_stack () =
@@ -35,7 +41,7 @@ let test_queue_stack () =
   assert (QStack.length a2 = 2);
   assert (QStack.take a2 = (1, QStack.add 2 a))
 
-
+*)
 (*......................................................................
                        SAMPLE TILE GAME TESTING
 *)

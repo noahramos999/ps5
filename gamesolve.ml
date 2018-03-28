@@ -65,35 +65,31 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
 
     let solve () : move list * state list =
 
-      let getfirst  (a, _) = a in
-      let getsecond (_, b) = b in
-
       let convert (sm : (state * move) list) : States.collection =
         (*takes in a state * move list and outputs a state * (move list) list *)
         let rec makemovelist (sml : (state * move) list) : move list =
         match sml with
         | [] -> []
-        | hd::tl -> (getsecond hd)::(makemovelist tl) in
+        | hd::tl -> (snd hd)::(makemovelist tl) in
 
         let rec makestatemovelist (sm : (state * move) list) (m : move list) (i : int) : States.collection =
           let rec getmoves (x : move list) (y : int) : move list =
-            if y = 0 then [] else
-            match x with
-            | [] -> []
-            | hd::tl -> hd::(getmoves tl (y - 1)) in
+            match x, y with
+            | _, 0 -> []
+            | [], _ -> []
+            | hd::tl, _ -> hd::(getmoves tl (y - 1)) in
           match sm with
           | [] -> States.empty
-          | hd::tl -> States.add (getfirst hd, getmoves m i) (makestatemovelist tl m (i + 1)) in
+          | hd::tl -> States.add (fst hd, getmoves m i) (makestatemovelist tl m (i + 1)) in
 
         makestatemovelist sm (makemovelist sm) 0 in
 
       let rec combine_collections (a : States.collection) (b : States.collection) : States.collection =
-        if b = States.empty then a else combine_collections (States.add (getfirst (States.take b)) a) (getsecond (States.take b)) in
+        if States.is_empty b then a else combine_collections (States.add (fst (States.take b)) a) (snd (States.take b)) in
 
       let rec iterate (t : States.collection) (s : state list) : move list * state list =
-        if G.is_goal (getfirst (getfirst (States.take t))) then (getsecond (getfirst (States.take t)), s)
-      else
-        iterate (combine_collections t (convert (G.neighbors (getfirst (getfirst (States.take t)))))) (s@[getfirst (getfirst (States.take t))])
+        if G.is_goal (fst (fst (States.take t))) then (snd (fst (States.take t)), s)
+      else iterate (combine_collections t (convert (G.neighbors (fst (fst (States.take t)))))) (s@[fst (fst (States.take t))])
       in
 
       iterate (convert (G.neighbors G.initial_state)) [G.initial_state]
@@ -124,5 +120,5 @@ responses and will use them to help guide us in creating future
 assignments.
 ......................................................................*)
 
-let minutes_spent_gamesolve () : int = failwith "not provided" ;;
+let minutes_spent_gamesolve () : int = 400 ;;
 let minutes_spent_writeup () : int = failwith "not provided" ;;

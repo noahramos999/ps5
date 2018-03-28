@@ -141,12 +141,9 @@ module MakeQueueStack (Element : sig type t end)
     let is_empty (d : collection) : bool =
       d = empty
 
-    let take_elt (a, _) = a
-    let take_collect (_, b) = b
-
     let rec reverse (c : collection) : collection =
       match c with
-      | (x, y) -> if y = StackList.empty then c else reverse (StackList.add (take_elt (StackList.take y)) x, take_collect (StackList.take y))
+      | (x, y) -> if y = StackList.empty then c else reverse (StackList.add (fst (StackList.take y)) x, snd (StackList.take y))
 
     let add (e : elt) (d : collection) : collection =
       match d with
@@ -154,9 +151,8 @@ module MakeQueueStack (Element : sig type t end)
 
     let take (d : collection) : elt * collection =
       match d with
-      | (x, y) -> if take_collect (StackList.take x) = StackList.empty then (take_elt (StackList.take x), reverse (take_collect (StackList.take x), y))
-                  else (take_elt (StackList.take x), (take_collect (StackList.take x), y))
-      | _ -> raise Empty
+      | (x, y) -> if snd (StackList.take x) = StackList.empty then (fst (StackList.take x), reverse (snd (StackList.take x), y))
+                  else (fst (StackList.take x), (snd (StackList.take x), y))
 
   end
 
