@@ -87,28 +87,44 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
       let rec combine_collections (a : States.collection) (b : States.collection) : States.collection =
         if States.is_empty b then a else combine_collections (States.add (fst (States.take b)) a) (snd (States.take b)) in
 
+      let incrementmoves (sc : States.collection) : States.collection =
+        let getmove () : move =
+          match snd (fst (States.take sc)) with
+          | hd::_ -> hd
+          | [] -> raise (Invalid_argument "error") in
+        let m = getmove () in
+        let helper (sm : state * (move list)) : state * (move list) =
+          match sm with
+          | (x, y) -> (x, y @ [m]) in
+        List.map helper sc in
+
       (*CURRENT PROBLEM: TRYING TO FIND HOW THIS ITERATE FUNCTION IS RECURSING INFINITELY
       THIS FUNCTION ALSO DOES NOT RETURN A PROPER MOVE LIST*)
       let rec iterate (t : States.collection) (s : state list) : move list * state list =
         let x = (fst (fst (States.take t))) in
         if G.is_goal x then (snd (fst (States.take t)), s)
         else if States.is_empty t then raise CantReachGoal
-        else iterate (combine_collections (snd (States.take t)) (convert (G.neighbors x))) (s @ [x])
+        else iterate (incrementmoves (combine_collections (snd (States.take t)) (convert (G.neighbors x)))) (s @ [x])
       in
 
       (*BELOW HERE IS ME TRYING TO FIGURE OUT ANOTHER IMPLEMENTATION THAT ONLY TAKES
-      STATES.COLLECTION AS INPUT. INCREMEMNT MOVES IF USED RIGHT SHOULD FIX THE MOVE LIST ISSUE*)
-      let incrementmoves (sc : States.collection) (m : move) : States.collection =
-        let helper (sm : state * (move list)) : state * (move list) =
-          match sm with
-          | (x, y) -> (x, y::[m]) in
-        map helper sc in
+      STATES.COLLECTION AS INPUT. INCREMENTMOVES IF USED RIGHT SHOULD FIX THE MOVE LIST ISSUE *)
+(*
+      let build (start : state) : move list * state list =
+        let rec work (visited : (state * move) list) (frontier : (state * move) list) : move list * state list =
 
-      let rec buildstates (t : States.collection) : state list =
-        let x = (fst (fst (States.take t))) in
-        if G.is_goal x then x
-        else if States.is_empty t then raise CantReachGoal
-        else [x] @ buildstates (incrementmoves (combine_collections (snd (States.take t)) (convert (G.neighbors x))) ) in
+        work (G.neighbors state) []
+
+      let buildfrontier (istate : state) : (state * move) list =
+        let gettakemove (st : States.collection) : move =
+          match snd (fst (States.take st)) with
+          | hd::_ -> hd
+          | [] -> raise (Invalid_argument "no move") in
+        let rec append (s : States.collection) : (state * move) list =
+          if States.is_empty s then []
+          else (fst (fst (States.take s)), gettakemove s) @ (snd (States.take s)) in
+
+        (G.neighbors G.initial_state) @ buildfrontier *)
 
       iterate (convert (G.neighbors G.initial_state)) [G.initial_state]
 
