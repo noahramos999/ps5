@@ -61,72 +61,32 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
 
     type move = G.move
 
-    module States = DSFunc (struct type t = state * (move list) end)
+    module SetItem = struct type t = state let compare = G.compare_states end
+    module Sets = Set.Make(SetItem)
+
+    module Smlist = DSFunc (struct type t = state * (move list) end)
 
     let solve () : move list * state list =
 
-      let convert (sm : (state * move) list) : States.collection =
-        (*takes in a state * move list and outputs a state * (move list) list *)
-        let rec makemovelist (sml : (state * move) list) : move list =
-        match sml with
-        | [] -> []
-        | hd::tl -> (snd hd)::(makemovelist tl) in
+      (*pending: to visit. visited: has ever been added to pending. includes neighbors. expanded: stuff that have been inputted into iterate*)
+      let rec iterate (pending : Smlist.collection) (visited : Sets.t) (expanded : state list) ((s, ml) : state * (move list))
+                      : move list * state list =
+        let updatedexpanded = expanded @ [s] in
+        if G.is_goal s then (ml, expanded)
+        else
+          let toadd = fst (fst (Smlist.take pending)) in
+          let rec addneighbors (x : (state * move) list) (uvisited : Sets.t) (upending : Smlist.collection)
+                               : Sets.t * Smlist.collection =
+            match x with
+            | [] -> (uvisited, upending)
+            | (a, b)::tl -> if Sets.mem a visited then addneighbors tl uvisited upending
+                            else addneighbors tl (Sets.add a uvisited) (Smlist.add (a, ml @ [b]) upending) in
+          let updatedvisited, updatedpending = addneighbors (G.neighbors toadd) (visited) (snd (Smlist.take pending)) in
+          if Smlist.is_empty updatedpending then raise CantReachGoal
+          else
+            iterate updatedpending updatedvisited updatedexpanded (fst (Smlist.take updatedpending)) in
 
-        let rec makestatemovelist (sm : (state * move) list) (m : move list) (i : int) : States.collection =
-          let rec getmoves (x : move list) (y : int) : move list =
-            match x, y with
-            | _, 0 -> []
-            | [], _ -> []
-            | hd::tl, _ -> hd::(getmoves tl (y - 1)) in
-          match sm with
-          | [] -> States.empty
-          | hd::tl -> States.add (fst hd, getmoves m i) (makestatemovelist tl m (i + 1)) in
-
-        makestatemovelist sm (makemovelist sm) 0 in
-
-      let rec combine_collections (a : States.collection) (b : States.collection) : States.collection =
-        if States.is_empty b then a else combine_collections (States.add (fst (States.take b)) a) (snd (States.take b)) in
-(*
-      let incrementmoves (sc : States.collection) : States.collection =
-        let getmove () : move =
-          match snd (fst (States.take sc)) with
-          | hd::_ -> hd
-          | [] -> raise (Invalid_argument "error") in
-        let m = getmove () in
-        let helper (sm : state * (move list)) : state * (move list) =
-          match sm with
-          | (x, y) -> (x, y @ [m]) in
-        List.map helper sc in
-*)
-      (*CURRENT PROBLEM: TRYING TO FIND HOW THIS ITERATE FUNCTION IS RECURSING INFINITELY
-      THIS FUNCTION ALSO DOES NOT RETURN A PROPER MOVE LIST*)
-      let rec iterate (t : States.collection) (s : state list) : move list * state list =
-        let x = (fst (fst (States.take t))) in
-        if G.is_goal x then (snd (fst (States.take t)), s)
-        else if States.is_empty t then raise CantReachGoal
-        else iterate (*(incrementmoves *)(combine_collections (snd (States.take t)) (convert (G.neighbors x))) (s @ [x])
-      in
-
-      (*BELOW HERE IS ME TRYING TO FIGURE OUT ANOTHER IMPLEMENTATION THAT ONLY TAKES
-      STATES.COLLECTION AS INPUT. INCREMENTMOVES IF USED RIGHT SHOULD FIX THE MOVE LIST ISSUE *)
-(*
-      let build (start : state) : move list * state list =
-        let rec work (visited : (state * move) list) (frontier : (state * move) list) : move list * state list =
-
-        work (G.neighbors state) []
-
-      let buildfrontier (istate : state) : (state * move) list =
-        let gettakemove (st : States.collection) : move =
-          match snd (fst (States.take st)) with
-          | hd::_ -> hd
-          | [] -> raise (Invalid_argument "no move") in
-        let rec append (s : States.collection) : (state * move) list =
-          if States.is_empty s then []
-          else (fst (fst (States.take s)), gettakemove s) @ (snd (States.take s)) in
-
-        (G.neighbors G.initial_state) @ buildfrontier *)
-
-      iterate (convert (G.neighbors G.initial_state)) [G.initial_state]
+      iterate (Smlist.empty) (Sets.add G.initial_state Sets.empty) [] (G.initial_state, [])
 
     let draw (sl : state list) (ml : move list) =
       G.draw sl ml
