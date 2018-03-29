@@ -74,19 +74,22 @@ module MakeGameSolver (DSFunc : functor(Element : sig type t end) ->
         let updatedexpanded = expanded @ [s] in
         if G.is_goal s then (ml, expanded)
         else
-          let toadd = fst (fst (Smlist.take pending)) in
           let rec addneighbors (x : (state * move) list) (uvisited : Sets.t) (upending : Smlist.collection)
                                : Sets.t * Smlist.collection =
             match x with
             | [] -> (uvisited, upending)
             | (a, b)::tl -> if Sets.mem a visited then addneighbors tl uvisited upending
                             else addneighbors tl (Sets.add a uvisited) (Smlist.add (a, ml @ [b]) upending) in
+
+          let toadd = fst (fst (Smlist.take pending)) in
+
           let updatedvisited, updatedpending = addneighbors (G.neighbors toadd) (visited) (snd (Smlist.take pending)) in
+
           if Smlist.is_empty updatedpending then raise CantReachGoal
           else
             iterate updatedpending updatedvisited updatedexpanded (fst (Smlist.take updatedpending)) in
 
-      iterate (Smlist.empty) (Sets.add G.initial_state Sets.empty) [] (G.initial_state, [])
+      iterate (Smlist.add (G.initial_state, []) Smlist.empty) (Sets.add G.initial_state Sets.empty) [] (G.initial_state, [])
 
     let draw (sl : state list) (ml : move list) =
       G.draw sl ml

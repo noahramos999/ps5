@@ -2,7 +2,9 @@
                                 CS 51
                              Spring 2018
                         Problem Set 5: Search
+
                      Testing Tile and Maze Puzzles
+
 In this file, we provide some tests of the game solver by generating
 random tile and maze puzzles and running the various solving methods
 (depth-first, breadth-first, etc.) on the examples. This code requires
@@ -20,6 +22,7 @@ open Tiles
 open Mazes
 open Gamedescription
 open Gamesolve
+
 
 (*......................................................................
                        SAMPLE TILE GAME TESTING
@@ -204,8 +207,10 @@ module TestMazeGame(M : MAZEINFO) =
       assert (MGame.is_goal (MGame.execute_moves dfs_path));
 
       Printf.printf("DONE TESTING MAZE GAME, DISPLAYING MAZE NOW\n");
+
       BFSG.draw bfs_expanded bfs_path;
       DFSG.draw dfs_expanded dfs_path
+
   end ;;
 
 (* Run the testing for each of our test mazes *)
